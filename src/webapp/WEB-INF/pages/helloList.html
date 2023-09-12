@@ -23,13 +23,17 @@
     </thead>
     <tbody>
         <tr th:each="user : ${users}">
-            <td th:text="${user.getId()}" th:href="/user">id</td>
-            <td th:text="${user.getName()}">name</td>
-            <td th:text="${user.getLastName()}">surname</td>
-            <td th:text="${user.getAge()}">age</td>
+            <td><a th:href="@{'/' + ${user.getId()}}" th:text="${user.getId()}">Id</a></td>
+            <td th:text="${user.getName()}">Name</td>
+            <td th:text="${user.getLastName()}">Surname</td>
+            <td th:text="${user.getAge()}">Age</td>
         </tr>
     </tbody>
 </table>
-
+<br>
+<button type="submit" onclick="window.location.href = '/new' ">
+    Add User
+</button>
+<br>
 </body>
 </html>

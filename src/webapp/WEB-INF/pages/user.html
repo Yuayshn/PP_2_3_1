@@ -22,14 +22,24 @@
     </tr>
     </thead>
     <tbody>
-        <td th:text="${user.getId()}" th:href="/user">id</td>
+    <tr th:each="user : ${user} ">
+        <td th:text="${user.getId()}">Id</td>
         <td th:text="${user.getName()}">name</td>
         <td th:text="${user.getLastName()}">surname</td>
         <td th:text="${user.getAge()}">age</td>
+    </tr>
     </tbody>
 </table>
 <br>
-<button onclick="window.location.href = '/';">Back to users</button>
+<form th:action="@{'edit/' + ${user.getId()}}">
+    <input type="submit" class="buttonEdit" value="Edit User"/>
+</form>
+<br>
+<form th:method="DELETE" th:action="@{'delete/' + ${user.getId()}}">
+    <input type="submit" class="buttonDelete" value="Delete User"/>
+</form>
+<br>
+<button onclick="window.location.href = '/'">Back to users</button>
 
 </body>
 </html>

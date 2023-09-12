@@ -1,85 +1,71 @@
 package web.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.core.env.Environment;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
 import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-@PropertySource("classpath:db.properties")
 @ComponentScan("web")
 public class JavaConfig {
 
-    private final Environment env;
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "root";
+    private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String URL = "jdbc:mysql://127.0.0.1:3306/users?verifyServerCertificate=false&useSSL=false&requireSSL=false&useLegacyDatetimeCode=false&amp&serverTimezone=UTC";
+    private static final String ENTITY_PACKAGE = "web";
 
-    @Autowired
-    public JavaConfig(Environment env) {
-        this.env = env;
-    }
-
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource());
-        em.setPackagesToScan(env.getRequiredProperty("db.entity.package"));
-        em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-        em.setJpaProperties(getHibernateProperties());
-
-        return em;
-    }
-
-    @Bean
-    public PlatformTransactionManager platformTransactionManager() {
-        JpaTransactionManager manager = new JpaTransactionManager();
-        manager.setEntityManagerFactory(entityManagerFactory().getObject());
-
-        return manager;
-    }
-
-    @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation(){
-        return new PersistenceExceptionTranslationPostProcessor();
-    }
 
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-
-        dataSource.setUrl(env.getProperty("db.url"));
-        dataSource.setUsername(env.getProperty("db.username"));
-        dataSource.setPassword(env.getProperty("db.password"));
-        dataSource.setDriverClassName(Objects.requireNonNull(env.getProperty("db.driver")));
-
+        dataSource.setDriverClassName(DRIVER);
+        dataSource.setUrl(URL);
+        dataSource.setUsername(USERNAME);
+        dataSource.setPassword(PASSWORD);
         return dataSource;
     }
+    @Bean
+    public JpaTransactionManager jpaTransactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactoryBean().getObject());
+        return transactionManager;
+    }
+    private HibernateJpaVendorAdapter vendorAdaptor() {
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        vendorAdapter.setShowSql(true);
+        return vendorAdapter;
+    }
 
-    private Properties getHibernateProperties() {
-        Properties properties = new Properties();
-
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("hibernate.properties")) {
-
-            properties.load(is);
-
-            return properties;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return properties;
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean() {
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+        entityManagerFactoryBean.setJpaVendorAdapter(vendorAdaptor());
+        entityManagerFactoryBean.setDataSource(dataSource());
+        entityManagerFactoryBean.setPersistenceProviderClass(HibernatePersistenceProvider.class);
+        entityManagerFactoryBean.setPackagesToScan(ENTITY_PACKAGE);
+        entityManagerFactoryBean.setJpaProperties(jpaHibernateProperties());
+        entityManagerFactoryBean.setJpaProperties(jpaHibernateProperties());
+        return entityManagerFactoryBean;
+    }
+    private Properties jpaHibernateProperties() {
+        Properties settings = new Properties();
+        settings.put(AvailableSettings.DIALECT, "org.hibernate.dialect.MySQL8Dialect");
+        settings.put(AvailableSettings.SHOW_SQL, "true");
+        settings.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+        settings.put(AvailableSettings.HBM2DDL_AUTO, "create-drop");
+        settings.put(AvailableSettings.DEFAULT_SCHEMA, "users");
+        return settings;
     }
 }
