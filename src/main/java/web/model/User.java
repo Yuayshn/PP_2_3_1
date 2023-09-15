@@ -21,7 +21,6 @@ public class User {
     private String lastName;
 
     @Column
-    @NotEmpty(message = "age should me not empty")
     @Min(value = 0, message = "Age should be >= 0")
     @Max(value = 127, message = "Age should be < 128")
     private Byte age;

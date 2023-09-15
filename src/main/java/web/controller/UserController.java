@@ -52,8 +52,9 @@ public class UserController {
         model.addAttribute(userService.getUserById(id));
         return "edit";
     }
-    @PatchMapping("/edit")
-    public String update(@Valid User user, BindingResult bindingResult) {
+    @PatchMapping("/edit/{id}")
+    public String update(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
+                         @PathVariable("id") Long id) {
         if (bindingResult.hasErrors()) {
             return "edit";
         } else {
