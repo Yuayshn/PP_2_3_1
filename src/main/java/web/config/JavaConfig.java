@@ -24,12 +24,6 @@ import java.util.Properties;
 @PropertySource("classpath:db.properties")
 public class JavaConfig {
 
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "root";
-    private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://127.0.0.1:3306/users?verifyServerCertificate=false&useSSL=false&requireSSL=false&useLegacyDatetimeCode=false&amp&serverTimezone=UTC";
-    private static final String ENTITY_PACKAGE = "web";
-
     private final Environment env;
 
     @Autowired
